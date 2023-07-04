@@ -1,57 +1,65 @@
-//Manuel Ortega Salvador, DG20
-
 #include <iostream>
 using namespace std;
-#include "TreeMap_AVL.h"
+#include "ConjuntosDisjuntos.h"
+#include "Matriz.h"
 #include <vector>
 
-template <class T>
-void resolver(map<T, T> const& avl, T inf, T sup, vector<T> &sol) {
-	if (!avl.empty()) {
-		if (inf <= avl.root() && avl.root() <= sup) {
-			resolver(avl.left(), inf, sup, sol);
-			sol.push_back(avl.root());
-			resolver(avl.right(), inf, sup, sol);
-		}
-		else if (avl.root() < inf) {
-			resolver(avl.right(), inf, sup, sol);
-		}
-		else if (sup < avl.root()) {
-			resolver(avl.left(), inf, sup, sol);
-		}
-	}
-}
-
 bool resuelveCaso() {
-	int numClaves, clave, limInf, limSup;
-	map<int, int> AVL;
+	int f, c;
 
-	cin >> numClaves;
-	if (numClaves == 0) return false;
+	cin >> f;
+	if (!std::cin)
+		return false;
 
-	for (int i = 0; i < numClaves; ++i) {
-		cin >> clave;
-		AVL.insert({ clave, 0 });
-	}
-
-	cin >> limInf >> limSup;
+	cin >> c;
+	getchar();
+	Matriz<char> rejilla(f, c);
+	ConjuntosDisjuntos cd(f * c);
 	vector<int> sol;
-	resolver(AVL, limInf, limSup, sol);
-
-	if (sol.empty()) cout << '\n';
-	else {
-		cout << sol[0];
-		for (int i = 1; i < sol.size(); ++i) {
-			cout << ' ' << sol[i];
+	char e;
+	int max = 0, count = 0;
+	for (int i = 0; i < f; ++i) {
+		for (int j = 0; j < c; ++j) {
+			e = getchar();
+			rejilla[i][j] = e;
+			if (e == '#') {
+				++count;
+				if (rejilla.posCorrecta(i - 1, j) && rejilla[i - 1][j] == '#') {
+					if (!cd.unidos(i * c + j, (i - 1) * c + j)) {
+						cd.unir(i * c + j, (i - 1) * c + j);
+						--count;
+					}
+				}
+				if (rejilla.posCorrecta(i, j - 1) && rejilla[i][j - 1] == '#') {
+					if (!cd.unidos(i * c + j, i * c + j - 1)) {
+						cd.unir(i * c + j, i * c + j - 1);
+						--count;
+					}
+				}
+				if (rejilla.posCorrecta(i + 1, j) && rejilla[i + 1][j] == '#') {
+					if (!cd.unidos(i * c + j, (i + 1) * c + j))
+					{
+						cd.unir(i * c + j, (i + 1) * c + j);
+						--count;
+					}
+				}
+				if (rejilla.posCorrecta(i, j + 1) && rejilla[i][j + 1] == '#') {
+					if (!cd.unidos(i * c + j, i * c + j + 1)) {
+						cd.unir(i * c + j, i * c + j + 1);
+						--count;
+					}
+				}
+				if (max < cd.tam(i * c + j)) max = cd.tam(i * c + j);
+			}
 		}
-		cout << '\n';
+		getchar();
 	}
+	cout << count << ' ' <<  max << '\n';
 
 	return true;
 }
 
 int main() {
 	while (resuelveCaso());
-
 	return 0;
 }
